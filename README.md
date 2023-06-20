@@ -1,4 +1,3 @@
-![image](https://github.com/cisea-dev/vibration-detector/assets/125446648/857811d4-cc7b-4c8b-91d5-e26354a84f7b)# vibration-detector
 this repository is provide vibration detector using esp32, mpu9250, sw420, piezoelectric
 
 # ESP32-U
@@ -22,7 +21,7 @@ ESP32-PIN |    SENSOR    |    PIN    |    VCC    |
 
 # Board
 ![Alt text](https://github.com/cisea-dev/vibration-detector/blob/main/BOARD.png "Optional title")
-![Alt text](https://github.com/cisea-dev/vibration-detector/blob/main/BOARD-2.png "Optional title")
+![](https://github.com/cisea-dev/vibration-detector/blob/main/BOARD-2.png)
 
 # Schematic
 
