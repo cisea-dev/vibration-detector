@@ -21,7 +21,9 @@ ESP32-PIN |    SENSOR    |    PIN    |    VCC    |
 
 # Board
 ![Alt text](https://github.com/cisea-dev/vibration-detector/blob/main/BOARD.png "Optional title")
-![](https://github.com/cisea-dev/vibration-detector/blob/main/BOARD-2.png)
 
 # Schematic
+![](https://github.com/cisea-dev/vibration-detector/blob/main/BOARD-2.png)
+
+
 
