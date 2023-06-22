@@ -4,9 +4,11 @@ TaskHandle_t ReadAllSensor;
 TaskHandle_t SetMPUSensor;
 TaskHandle_t SetVIBSensor;
 TaskHandle_t SetGPSSensor;
+TaskHandle_t SetNTP;
 TaskHandle_t SendingToServer;
 TaskHandle_t ReadButton;
 TaskHandle_t PrintOled;
+TaskHandle_t OtaFirmware;
 
 StaticJsonDocument<20000> allObject;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
@@ -15,27 +17,27 @@ TinyGPSPlus gps;
 
 void setup() {
   Serial.begin(115200);
-  Serial2.begin(9600);
+  SERIALGPS.begin(9600);
   DEFAULT_INITIALIZATION();
-  
+
   //*****WIFI*****
   WiFi.begin(CONTROL_TABLE_STATIC[SSID], CONTROL_TABLE_STATIC[PASSWORD]);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
   Serial.println(WiFi.localIP());
-  
+
   //*****OLED*****
   /*
-  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     CONTROL_TABLE_STATE[RESTART] = true;
     CONTROL_TABLE_DINAMIC[STATUS_ERROR] = "OLED ERROR";
-  } else {
+    } else {
     display.display();
     delay(2000);
     display.clearDisplay();
-  }
-  //*/
+    }
+    //*/
 
   //*****MPU 9250*****
   //CALIBRATE_MPU();
@@ -120,6 +122,18 @@ void setup() {
     &PrintOled,    /* Task handle. */
     0);            /* Core where the task should run */
   delay(500);
+
+  xTaskCreatePinnedToCore(
+    SetNTPCode,
+    "SetNTP",
+    10000,
+    NULL,
+    0,
+    &SetNTP,
+    0,
+  )
+  delay(500);
+
 }
 
 void loop() {

@@ -1,8 +1,7 @@
-
 /**
-* SetVIBCode is task that handle function
+* SetMPUCode is task that handle function
 * To set MPU value on CONTROL_TABLE_MPU
-* Run On Core 1
+* Run On Core 0
 */
 void SetMPUCode(void* pvParameters) {
   /*Run On Core 0*/
@@ -14,7 +13,7 @@ void SetMPUCode(void* pvParameters) {
     if ((millis() - ms > CONTROL_TABLE_TIME[SET_MPU_SENSOR]) && (CONTROL_TABLE_STATE[RUNMODE])) {
       Serial.print("SetMPUCode running on core ");
       Serial.println(xPortGetCoreID());
-      // Serial.println(mpu.isConnected() ? "MPU Not Connected" : "");
+       Serial.println(CONTROL_TABLE_MPU[ISCONNECTED] ? "MPU Not Connected" : "MPU Connect");
 
       bool isCalib = CONTROL_TABLE_STATE[ISCALIBRATED];
       /******
