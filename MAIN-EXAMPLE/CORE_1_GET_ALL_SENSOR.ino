@@ -89,6 +89,7 @@ void ReadAllSensorCode(void* pvParameters) {
       vibration_0["digVib"] = CONTROL_TABLE_VIBRATION[DIGITAL_VIB];
       vibration_0["piezo"] = CONTROL_TABLE_VIBRATION[ANALOG_PIEZO];
 
+      doc["gps_ts"] = CONTROL_TABLE_DINAMIC[GPS_TS];
       doc["ts"] = CONTROL_TABLE_DINAMIC[TIMESTAMP];
       allObject.add(doc);
       ms = millis();

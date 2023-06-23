@@ -57,9 +57,13 @@ void SetMPUCode(void* pvParameters) {
   }
 }
 
-
-void CalibMPUCode(void* pvParameters) {
-  Serial.print("CalibMPUCode running on core ");
+/**
+*this fum
+*
+* CORE 0
+*/
+void SetCalibrateMPUCode(void* pvParameters) {
+  Serial.print("SetCalibrateMPUCode running on core ");
   Serial.println(xPortGetCoreID());
   for (;;) {
     delay(10);
@@ -173,15 +177,37 @@ void SetGPSCode(void* pvParameters) {
               CONTROL_TABLE_DINAMIC[TIMESTAMP] += String(gps.date.month()) + "-";
               CONTROL_TABLE_DINAMIC[TIMESTAMP] += String(gps.date.day());
 
-              if (gps.time.hour() < 10) CONTROL_TABLE_DINAMIC[TIMESTAMP] += "0" + String(gps.time.hour());
-              if (gps.time.minute() < 10) CONTROL_TABLE_DINAMIC[TIMESTAMP] += "0" + String(gps.time.minute());
-              if (gps.time.second() < 10) CONTROL_TABLE_DINAMIC[TIMESTAMP] += "0" + String(gps.time.second());
-              if (gps.time.centisecond() < 10) CONTROL_TABLE_DINAMIC[TIMESTAMP] += "0" + String(gps.time.centisecond());
+              if (gps.time.hour() < 10) CONTROL_TABLE_DINAMIC[GPS_TS] += "0" + String(gps.time.hour());
+              if (gps.time.minute() < 10) CONTROL_TABLE_DINAMIC[GPS_TS] += "0" + String(gps.time.minute());
+              if (gps.time.second() < 10) CONTROL_TABLE_DINAMIC[GPS_TS] += "0" + String(gps.time.second());
+              if (gps.time.centisecond() < 10) CONTROL_TABLE_DINAMIC[GPS_TS] += "0" + String(gps.time.centisecond());
             }
         }
       }
       //*/
       ms = millis();
+    }
+  }
+}
+
+
+void SetNTPCode(void* pvParameters) {
+  Serial.print("SetNTPCode running on core : ");
+  Serial.println(xPortGetCoreID());
+  for (;;) {
+    delay(10);
+    static uint32_t ms = millis();
+    if (millis() - ms > CONTROL_TABLE_TIME[SET_NTP] || CONTROL_TABLE_STATE[GET_NTP]) {
+      CONTROL_TABLE_STATE[GET_NTP] = false;
+      configTime(CONTROL_TABLE_TIME[OFFSET], CONTROL_TABLE_DIGITAL[DAYLIGHT], CONTROL_TABLE_STATIC[NTP_SERVER]);
+      struct tm timeinfo;
+      if (!getLocalTime(&timeinfo)) {
+        Serial.println("Failed to obtain time");
+        return;
+      }
+      char timestamp [20];
+      strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &timeinfo);
+      CONTROL_TABLE_DINAMIC[TIMESTAMP] = String(timestamp);
     }
   }
 }

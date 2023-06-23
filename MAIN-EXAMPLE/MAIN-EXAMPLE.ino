@@ -4,6 +4,7 @@ TaskHandle_t ReadAllSensor;
 TaskHandle_t SetMPUSensor;
 TaskHandle_t SetVIBSensor;
 TaskHandle_t SetGPSSensor;
+TaskHandle_t SetCalibrateMPU;
 TaskHandle_t SetNTP;
 TaskHandle_t SendingToServer;
 TaskHandle_t ReadButton;
@@ -108,7 +109,7 @@ void setup() {
     "SendingToServer", /* Name of the task */
     10000,             /* Stack size in words */
     NULL,              /* Task input parameter */
-    10,                 /* Priority of the task */
+    10,                /* Priority of the task */
     &SendingToServer,  /* Task handle. */
     0);                /* Core where the task should run */
   delay(500);
@@ -130,10 +131,19 @@ void setup() {
     NULL,
     0,
     &SetNTP,
-    0,
-  )
+    0);
   delay(500);
 
+  xTaskCreatePinnedToCore(
+    SetCalibrateMPUCode, /* Function to implement the task */
+    "SetCalibrateMPU",   /* Name of the task */
+    10000,         /* Stack size in words */
+    NULL,          /* Task input parameter */
+    0,             /* Priority of the task */
+    &SetCalibrateMPU,    /* Task handle. */
+    0);            /* Core where the task should run */
+  delay(500);
+  
 }
 
 void loop() {
