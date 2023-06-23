@@ -1,7 +1,7 @@
 /**
-* SetMPUCode is task that handle function
-* To set MPU value on CONTROL_TABLE_MPU
-* Run On Core 0
+  SetMPUCode is task that handle function
+  To set MPU value on CONTROL_TABLE_MPU
+  Run On Core 0
 */
 void SetMPUCode(void* pvParameters) {
   /*Run On Core 0*/
@@ -13,18 +13,18 @@ void SetMPUCode(void* pvParameters) {
     if ((millis() - ms > CONTROL_TABLE_TIME[SET_MPU_SENSOR]) && (CONTROL_TABLE_STATE[RUNMODE])) {
       Serial.print("SetMPUCode running on core ");
       Serial.println(xPortGetCoreID());
-       Serial.println(CONTROL_TABLE_MPU[ISCONNECTED] ? "MPU Not Connected" : "MPU Connect");
+      Serial.println(CONTROL_TABLE_MPU[ISCONNECTED] ? "MPU Not Connected" : "MPU Connect");
 
       bool isCalib = CONTROL_TABLE_STATE[ISCALIBRATED];
       /******
-      switch (isCalib) {
+        switch (isCalib) {
         case 0:
           Serial.println("MPU Not Calibrated");
           break;
 
         case 1:
           Serial.println("MPU Calibrated");
-          
+
             CONTROL_TABLE_MPU[ACC_X] = mpu.getAccX();
             CONTROL_TABLE_MPU[ACC_Y] = mpu.getAccY();
             CONTROL_TABLE_MPU[ACC_Z] = mpu.getAccZ();
@@ -47,31 +47,71 @@ void SetMPUCode(void* pvParameters) {
             CONTROL_TABLE_MPU[LIN_ACC_X] = mpu.getLinearAccX();
             CONTROL_TABLE_MPU[LIN_ACC_Y] = mpu.getLinearAccY();
             CONTROL_TABLE_MPU[LIN_ACC_Z] = mpu.getLinearAccZ();
-            CONTROL_TABLE_MPU[ACC_BIAS_X] = mpu.getAccBiasX() * 1000.f / (float)MPU9250::CALIB_ACCEL_SENSITIVITY;
-            CONTROL_TABLE_MPU[ACC_BIAS_Y] = mpu.getAccBiasY() * 1000.f / (float)MPU9250::CALIB_ACCEL_SENSITIVITY;
-            CONTROL_TABLE_MPU[ACC_BIAS_Z] = mpu.getAccBiasZ() * 1000.f / (float)MPU9250::CALIB_ACCEL_SENSITIVITY;
-            CONTROL_TABLE_MPU[GYRO_BIAS_X] = mpu.getGyroBiasX() / (float)MPU9250::CALIB_GYRO_SENSITIVITY;
-            CONTROL_TABLE_MPU[GYRO_BIAS_Y] = mpu.getGyroBiasY() / (float)MPU9250::CALIB_GYRO_SENSITIVITY;
-            CONTROL_TABLE_MPU[GYRO_BIAS_Z] = mpu.getGyroBiasZ() / (float)MPU9250::CALIB_GYRO_SENSITIVITY;
-            CONTROL_TABLE_MPU[MAG_BIAS_X] = mpu.getMagBiasX();
-            CONTROL_TABLE_MPU[MAG_BIAS_Y] = mpu.getMagBiasY();
-            CONTROL_TABLE_MPU[MAG_BIAS_Z] = mpu.getMagBiasZ();
-            CONTROL_TABLE_MPU[MAG_SCALE_X] = mpu.getMagScaleX();
-            CONTROL_TABLE_MPU[MAG_SCALE_Y] = mpu.getMagScaleY();
-            CONTROL_TABLE_MPU[MAG_SCALE_Z] = mpu.getMagScaleZ();
+
             CONTROL_TABLE_MPU[TEMPERATURE] = mpu.getTemperature();
-            
+
           break;
-      }//*/
+        }//*/
       ms = millis();
     }
   }
 }
 
+
+void CalibMPUCode(void* pvParameters) {
+  Serial.print("CalibMPUCode running on core ");
+  Serial.println(xPortGetCoreID());
+  for (;;) {
+    delay(10);
+    static uint32_t ms = millis();
+    if ((millis() - ms > CONTROL_TABLE_TIME[SET_CALIBRATE]) && CONTROL_TABLE_STATE[!ISCALIBRATED]) {
+      Serial.println("Accel Gyro calibration will start in 5sec.");
+      Serial.println("Please leave the device still on the flat plane.");
+
+      CONTROL_TABLE_STATE[RUNMODE] = false;
+      CONTROL_TABLE_STATE[SENDING] = false;
+      CONTROL_TABLE_STATE[RESTART] = false;
+      CONTROL_TABLE_STATE[INTERRUPT_BUTTON] = false;
+      CONTROL_TABLE_STATE[SELECT_MODE] = false;
+      CONTROL_TABLE_STATE[OTA] = false;
+      CONTROL_TABLE_STATE[CALIBRATE] = false;
+      CONTROL_TABLE_STATE[PRINT_DATA] = false;
+      CONTROL_TABLE_STATE[ISCALIBRATED] = true;
+
+      CONTROL_TABLE_DINAMIC[STATUS_ERROR] = "Accel Gyro calibration will start in 5sec.\n";
+      CONTROL_TABLE_DINAMIC[STATUS_ERROR] += "Please leave the device still on the flat plane.\n";
+      display.display();
+      display.clearDisplay();
+      display.setCursor(0, 0);
+      display.println(CONTROL_TABLE_DINAMIC[STATUS_ERROR]);
+      mpu.verbose(true);
+      delay(5000);
+      mpu.calibrateAccelGyro();
+      CONTROL_TABLE_DINAMIC[STATUS_ERROR] = "Mag calibration will start in 5sec.";
+      CONTROL_TABLE_DINAMIC[STATUS_ERROR] += "Please Wave device in a figure eight until done.";
+      delay(5000);
+      mpu.calibrateMag();
+      mpu.verbose(false);
+      CONTROL_TABLE_MPU[ACC_BIAS_X] = mpu.getAccBiasX() * 1000.f / (float)MPU9250::CALIB_ACCEL_SENSITIVITY;
+      CONTROL_TABLE_MPU[ACC_BIAS_Y] = mpu.getAccBiasY() * 1000.f / (float)MPU9250::CALIB_ACCEL_SENSITIVITY;
+      CONTROL_TABLE_MPU[ACC_BIAS_Z] = mpu.getAccBiasZ() * 1000.f / (float)MPU9250::CALIB_ACCEL_SENSITIVITY;
+      CONTROL_TABLE_MPU[GYRO_BIAS_X] = mpu.getGyroBiasX() / (float)MPU9250::CALIB_GYRO_SENSITIVITY;
+      CONTROL_TABLE_MPU[GYRO_BIAS_Y] = mpu.getGyroBiasY() / (float)MPU9250::CALIB_GYRO_SENSITIVITY;
+      CONTROL_TABLE_MPU[GYRO_BIAS_Z] = mpu.getGyroBiasZ() / (float)MPU9250::CALIB_GYRO_SENSITIVITY;
+      CONTROL_TABLE_MPU[MAG_BIAS_X] = mpu.getMagBiasX();
+      CONTROL_TABLE_MPU[MAG_BIAS_Y] = mpu.getMagBiasY();
+      CONTROL_TABLE_MPU[MAG_BIAS_Z] = mpu.getMagBiasZ();
+      CONTROL_TABLE_MPU[MAG_SCALE_X] = mpu.getMagScaleX();
+      CONTROL_TABLE_MPU[MAG_SCALE_Y] = mpu.getMagScaleY();
+      CONTROL_TABLE_MPU[MAG_SCALE_Z] = mpu.getMagScaleZ();
+    }
+  }
+}
+
 /**
-* SetVIBCode is task that handle function
-* To set GPS value on CONTROL_TABLE_VIBRATION
-* Run On Core 1
+  SetVIBCode is task that handle function
+  To set GPS value on CONTROL_TABLE_VIBRATION
+  Run On Core 1
 */
 void SetVIBCode(void* pvParameters) {
   /*Run On Core 0*/
@@ -83,7 +123,7 @@ void SetVIBCode(void* pvParameters) {
     if ((millis() - ms > CONTROL_TABLE_TIME[SET_VIB_SENSOR]) && (CONTROL_TABLE_STATE[RUNMODE])) {
       Serial.print("SetVIBCode running on core ");
       Serial.println(xPortGetCoreID());
-      //*      
+      //*
       CONTROL_TABLE_VIBRATION[DIGITAL_SW420] = digitalRead(PIN_SW420);
       CONTROL_TABLE_VIBRATION[ANALOG_VIB] = analogRead(PIN_VIB_ANALOG);
       CONTROL_TABLE_VIBRATION[DIGITAL_VIB] = digitalRead(PIN_VIB_DIGITAL);
@@ -96,9 +136,9 @@ void SetVIBCode(void* pvParameters) {
 
 
 /**
-* SetGPSCode is task that handle function
-* To set GPS value on CONTROL_TABLE_GPS
-* Run On Core 1
+  SetGPSCode is task that handle function
+  To set GPS value on CONTROL_TABLE_GPS
+  Run On Core 1
 */
 void SetGPSCode(void* pvParameters) {
   /*Run On Core 1*/
