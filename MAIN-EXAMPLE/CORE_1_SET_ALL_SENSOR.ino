@@ -13,7 +13,7 @@ void SetMPUCode(void* pvParameters) {
     if ((millis() - ms > CONTROL_TABLE_TIME[SET_MPU_SENSOR]) && (CONTROL_TABLE_STATE[RUNMODE])) {
       Serial.print("SetMPUCode running on core ");
       Serial.println(xPortGetCoreID());
-      Serial.println(CONTROL_TABLE_MPU[ISCONNECTED] ? "MPU Not Connected" : "MPU Connect");
+      Serial.println(CONTROL_TABLE_MPU[ISCONNECTED] ? "MPU Connected" : "MPU Not Connected");
 
       bool isCalib = CONTROL_TABLE_STATE[ISCALIBRATED];
       /******
@@ -69,9 +69,10 @@ void SetCalibrateMPUCode(void* pvParameters) {
     delay(10);
     static uint32_t ms = millis();
     if ((millis() - ms > CONTROL_TABLE_TIME[SET_CALIBRATE]) && CONTROL_TABLE_STATE[!ISCALIBRATED]) {
+      /*
       Serial.println("Accel Gyro calibration will start in 5sec.");
       Serial.println("Please leave the device still on the flat plane.");
-
+      
       CONTROL_TABLE_STATE[RUNMODE] = false;
       CONTROL_TABLE_STATE[SENDING] = false;
       CONTROL_TABLE_STATE[RESTART] = false;
@@ -84,18 +85,31 @@ void SetCalibrateMPUCode(void* pvParameters) {
 
       CONTROL_TABLE_DINAMIC[STATUS_ERROR] = "Accel Gyro calibration will start in 5sec.\n";
       CONTROL_TABLE_DINAMIC[STATUS_ERROR] += "Please leave the device still on the flat plane.\n";
+      
       display.display();
       display.clearDisplay();
       display.setCursor(0, 0);
       display.println(CONTROL_TABLE_DINAMIC[STATUS_ERROR]);
+      
       mpu.verbose(true);
       delay(5000);
       mpu.calibrateAccelGyro();
-      CONTROL_TABLE_DINAMIC[STATUS_ERROR] = "Mag calibration will start in 5sec.";
-      CONTROL_TABLE_DINAMIC[STATUS_ERROR] += "Please Wave device in a figure eight until done.";
+      CONTROL_TABLE_DINAMIC[STATUS_ERROR] = "Mag calibration will start in 5sec.\n";
+      CONTROL_TABLE_DINAMIC[STATUS_ERROR] += "Please Wave device \nin a figure eight until done.";
+      display.display();
+      display.clearDisplay();
+      display.setCursor(0, 0);
+      display.println(CONTROL_TABLE_DINAMIC[STATUS_ERROR]);
       delay(5000);
       mpu.calibrateMag();
       mpu.verbose(false);
+      CONTROL_TABLE_DINAMIC[STATUS_ERROR] = "Mag calibration will start in 5sec.\n";
+      CONTROL_TABLE_DINAMIC[STATUS_ERROR] += "Please Wave device \nin a figure eight until done.";
+      CONTROL_TABLE_DINAMIC[STATUS_ERROR] += "Calibrate Done";
+      display.display();
+      display.clearDisplay();
+      display.setCursor(0, 0);
+      display.println(CONTROL_TABLE_DINAMIC[STATUS_ERROR]);
       CONTROL_TABLE_MPU[ACC_BIAS_X] = mpu.getAccBiasX() * 1000.f / (float)MPU9250::CALIB_ACCEL_SENSITIVITY;
       CONTROL_TABLE_MPU[ACC_BIAS_Y] = mpu.getAccBiasY() * 1000.f / (float)MPU9250::CALIB_ACCEL_SENSITIVITY;
       CONTROL_TABLE_MPU[ACC_BIAS_Z] = mpu.getAccBiasZ() * 1000.f / (float)MPU9250::CALIB_ACCEL_SENSITIVITY;
@@ -108,6 +122,7 @@ void SetCalibrateMPUCode(void* pvParameters) {
       CONTROL_TABLE_MPU[MAG_SCALE_X] = mpu.getMagScaleX();
       CONTROL_TABLE_MPU[MAG_SCALE_Y] = mpu.getMagScaleY();
       CONTROL_TABLE_MPU[MAG_SCALE_Z] = mpu.getMagScaleZ();
+      //*/
     }
   }
 }
@@ -205,7 +220,7 @@ void SetNTPCode(void* pvParameters) {
         Serial.println("Failed to obtain time");
         return;
       }
-      char timestamp [20];
+      char timestamp[20];
       strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &timeinfo);
       CONTROL_TABLE_DINAMIC[TIMESTAMP] = String(timestamp);
     }
