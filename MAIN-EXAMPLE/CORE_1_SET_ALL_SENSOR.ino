@@ -11,8 +11,8 @@ void SetMPUCode(void* pvParameters) {
     delay(10);
     static uint32_t ms = millis();
     if ((millis() - ms > CONTROL_TABLE_TIME[SET_MPU_SENSOR]) && (CONTROL_TABLE_STATE[RUNMODE])) {
-      Serial.print("SetMPUCode running on core ");
-      Serial.println(xPortGetCoreID());
+      // Serial.print("SetMPUCode running on core ");
+      // Serial.println(xPortGetCoreID());
       Serial.println(CONTROL_TABLE_MPU[ISCONNECTED] ? "MPU Connected" : "MPU Not Connected");
 
       bool isCalib = CONTROL_TABLE_STATE[ISCALIBRATED];
@@ -142,11 +142,7 @@ void SetVIBCode(void* pvParameters) {
     if ((millis() - ms > CONTROL_TABLE_TIME[SET_VIB_SENSOR]) && (CONTROL_TABLE_STATE[RUNMODE])) {
       Serial.print("SetVIBCode running on core ");
       Serial.println(xPortGetCoreID());
-      //*
-      CONTROL_TABLE_VIBRATION[DIGITAL_SW420] = digitalRead(PIN_SW420);
-      CONTROL_TABLE_VIBRATION[ANALOG_VIB] = analogRead(PIN_VIB_ANALOG);
-      CONTROL_TABLE_VIBRATION[DIGITAL_VIB] = digitalRead(PIN_VIB_DIGITAL);
-      CONTROL_TABLE_VIBRATION[ANALOG_PIEZO] = analogRead(PIN_PIEZO);
+      
       //*/
       ms = millis();
     }
@@ -222,6 +218,8 @@ void SetNTPCode(void* pvParameters) {
       }
       char timestamp[20];
       strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &timeinfo);
+      // Serial.print("Timestamp : ");
+      // Serial.println(String(timestamp));
       CONTROL_TABLE_DINAMIC[TIMESTAMP] = String(timestamp);
     }
   }
