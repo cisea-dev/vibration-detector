@@ -9,9 +9,8 @@ void SendToServerCode(void* pvParameters) {
   for (;;) {
     delay(10);
     static uint32_t ms = millis();
-    if ((millis() - ms > CONTROL_TABLE_TIME[SENDING_TO_SERVER]) && (CONTROL_TABLE_STATE[SENDING])) {
-      // Serial.print("\n\n\n\nSendingToServer running on core ");
-      // Serial.println(xPortGetCoreID());
+    if (((millis() - ms > CONTROL_TABLE_TIME[SENDING_TO_SERVER]) && (CONTROL_TABLE_STATE[SENDING])) || (CONTROL_TABLE_STATE[SENDING])) {
+      CONTROL_TABLE_STATE[SENDING] = false;
       String allOutput;
       serializeJson(allObject, allOutput);
       int response = HTTP_ERROR;
@@ -58,13 +57,12 @@ void ReadButtonCode(void* pvParameters) {
     delay(10);
     static uint32_t ms = millis();
     if ((millis() - ms > CONTROL_TABLE_TIME[READ_BUTTON]) || CONTROL_TABLE_STATE[SELECT_MODE]) {
-      // Serial.print("ReadButtonCode running on core ");
-      // Serial.println(xPortGetCoreID());
       //*****If millis is greather than READ BUTTON TIME and SELECT_MODE on true*****
       CONTROL_TABLE_DIGITAL[BUTTON_SELECT] = digitalRead(PIN_BTN_SELECT);
       CONTROL_TABLE_DIGITAL[BUTTON_ENTER] = digitalRead(PIN_BTN_ENTER);
 
       if (CONTROL_TABLE_DIGITAL[BUTTON_SELECT]) {
+        delay(100);
         display.clearDisplay();
         CONTROL_TABLE_DIGITAL[STATE_MENU] = (CONTROL_TABLE_DIGITAL[STATE_MENU] + 1) % MENU_ITEM_COUNT;
         Serial.print("Button Select : ");
@@ -137,6 +135,7 @@ void ReadButtonCode(void* pvParameters) {
 
           case 3:
             //*****CALIBRATE MPU*****
+            CALIBRATE_MPU();
             CONTROL_TABLE_STATE[RUNMODE] = false;
             CONTROL_TABLE_STATE[SENDING] = false;
             CONTROL_TABLE_STATE[RESTART] = false;
@@ -163,7 +162,7 @@ void ReadButtonCode(void* pvParameters) {
 
           case 5:
             //*****SENDING DATA TO SERVER*****
-            CONTROL_TABLE_STATE[RUNMODE] = false;
+            CONTROL_TABLE_STATE[RUNMODE] = true;
             CONTROL_TABLE_STATE[SENDING] = true;
             CONTROL_TABLE_STATE[RESTART] = false;
             CONTROL_TABLE_STATE[INTERRUPT_BUTTON] = false;
@@ -220,8 +219,6 @@ void PrintOledCode(void* pvParameters) {
     delay(10);
     static uint32_t ms = millis();
     if ((millis() - ms > CONTROL_TABLE_TIME[OLED]) && CONTROL_TABLE_STATE[PRINT_DATA]) {
-      Serial.print("PrintCode running on core ");
-      Serial.println(xPortGetCoreID());
 
       ms = millis();
     }

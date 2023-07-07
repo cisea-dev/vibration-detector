@@ -12,8 +12,6 @@ void ReadAllSensorCode(void* pvParameters) {
     delay(10);
     static uint32_t ms = millis();
     if ((millis() - ms > CONTROL_TABLE_TIME[READ_ALL_SENSOR]) && (CONTROL_TABLE_STATE[RUNMODE])) {
-      // Serial.print("ReadAllSensor running on core ");
-      // Serial.println(xPortGetCoreID());
       StaticJsonDocument<1700> doc;  // Created 3 Object
       doc["uuid"] = CONTROL_TABLE_DINAMIC[UUID];
       JsonObject accelerometer_0 = doc["accelerometer"].createNestedObject();

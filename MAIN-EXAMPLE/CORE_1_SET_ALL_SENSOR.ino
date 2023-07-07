@@ -1,63 +1,4 @@
 /**
-  SetMPUCode is task that handle function
-  To set MPU value on CONTROL_TABLE_MPU
-  Run On Core 0
-*/
-void SetMPUCode(void* pvParameters) {
-  /*Run On Core 0*/
-  Serial.print("SetMPUCode running on core ");
-  Serial.println(xPortGetCoreID());
-  for (;;) {
-    delay(10);
-    static uint32_t ms = millis();
-    if ((millis() - ms > CONTROL_TABLE_TIME[SET_MPU_SENSOR]) && (CONTROL_TABLE_STATE[RUNMODE])) {
-      // Serial.print("SetMPUCode running on core ");
-      // Serial.println(xPortGetCoreID());
-      Serial.println(CONTROL_TABLE_MPU[ISCONNECTED] ? "MPU Connected" : "MPU Not Connected");
-
-      bool isCalib = CONTROL_TABLE_STATE[ISCALIBRATED];
-      /******
-        switch (isCalib) {
-        case 0:
-          Serial.println("MPU Not Calibrated");
-          break;
-
-        case 1:
-          Serial.println("MPU Calibrated");
-
-            CONTROL_TABLE_MPU[ACC_X] = mpu.getAccX();
-            CONTROL_TABLE_MPU[ACC_Y] = mpu.getAccY();
-            CONTROL_TABLE_MPU[ACC_Z] = mpu.getAccZ();
-            CONTROL_TABLE_MPU[GYRO_X] = mpu.getGyroX();
-            CONTROL_TABLE_MPU[GYRO_Y] = mpu.getGyroY();
-            CONTROL_TABLE_MPU[GYRO_Z] = mpu.getGyroZ();
-            CONTROL_TABLE_MPU[MAG_X] = mpu.getMagX();
-            CONTROL_TABLE_MPU[MAG_Y] = mpu.getMagY();
-            CONTROL_TABLE_MPU[MAG_Z] = mpu.getMagZ();
-            CONTROL_TABLE_MPU[QUAN_X] = mpu.getQuaternionX();
-            CONTROL_TABLE_MPU[QUAN_Y] = mpu.getQuaternionY();
-            CONTROL_TABLE_MPU[QUAN_Z] = mpu.getQuaternionZ();
-            CONTROL_TABLE_MPU[QUAN_W] = mpu.getQuaternionW();
-            CONTROL_TABLE_MPU[ROLL] = mpu.getRoll();
-            CONTROL_TABLE_MPU[PITCH] = mpu.getPitch();
-            CONTROL_TABLE_MPU[YAW] = mpu.getYaw();
-            CONTROL_TABLE_MPU[EULER_X] = mpu.getEulerX();
-            CONTROL_TABLE_MPU[EULER_Y] = mpu.getEulerY();
-            CONTROL_TABLE_MPU[EULER_Z] = mpu.getEulerZ();
-            CONTROL_TABLE_MPU[LIN_ACC_X] = mpu.getLinearAccX();
-            CONTROL_TABLE_MPU[LIN_ACC_Y] = mpu.getLinearAccY();
-            CONTROL_TABLE_MPU[LIN_ACC_Z] = mpu.getLinearAccZ();
-
-            CONTROL_TABLE_MPU[TEMPERATURE] = mpu.getTemperature();
-
-          break;
-        }//*/
-      ms = millis();
-    }
-  }
-}
-
-/**
 *this fum
 *
 * CORE 0
@@ -68,61 +9,44 @@ void SetCalibrateMPUCode(void* pvParameters) {
   for (;;) {
     delay(10);
     static uint32_t ms = millis();
-    if ((millis() - ms > CONTROL_TABLE_TIME[SET_CALIBRATE]) && CONTROL_TABLE_STATE[!ISCALIBRATED]) {
-      /*
-      Serial.println("Accel Gyro calibration will start in 5sec.");
-      Serial.println("Please leave the device still on the flat plane.");
-      
-      CONTROL_TABLE_STATE[RUNMODE] = false;
-      CONTROL_TABLE_STATE[SENDING] = false;
-      CONTROL_TABLE_STATE[RESTART] = false;
-      CONTROL_TABLE_STATE[INTERRUPT_BUTTON] = false;
-      CONTROL_TABLE_STATE[SELECT_MODE] = false;
-      CONTROL_TABLE_STATE[OTA] = false;
-      CONTROL_TABLE_STATE[CALIBRATE] = false;
-      CONTROL_TABLE_STATE[PRINT_DATA] = false;
-      CONTROL_TABLE_STATE[ISCALIBRATED] = true;
-
-      CONTROL_TABLE_DINAMIC[STATUS_ERROR] = "Accel Gyro calibration will start in 5sec.\n";
-      CONTROL_TABLE_DINAMIC[STATUS_ERROR] += "Please leave the device still on the flat plane.\n";
-      
-      display.display();
-      display.clearDisplay();
-      display.setCursor(0, 0);
-      display.println(CONTROL_TABLE_DINAMIC[STATUS_ERROR]);
-      
-      mpu.verbose(true);
-      delay(5000);
-      mpu.calibrateAccelGyro();
-      CONTROL_TABLE_DINAMIC[STATUS_ERROR] = "Mag calibration will start in 5sec.\n";
-      CONTROL_TABLE_DINAMIC[STATUS_ERROR] += "Please Wave device \nin a figure eight until done.";
-      display.display();
-      display.clearDisplay();
-      display.setCursor(0, 0);
-      display.println(CONTROL_TABLE_DINAMIC[STATUS_ERROR]);
-      delay(5000);
-      mpu.calibrateMag();
-      mpu.verbose(false);
-      CONTROL_TABLE_DINAMIC[STATUS_ERROR] = "Mag calibration will start in 5sec.\n";
-      CONTROL_TABLE_DINAMIC[STATUS_ERROR] += "Please Wave device \nin a figure eight until done.";
-      CONTROL_TABLE_DINAMIC[STATUS_ERROR] += "Calibrate Done";
-      display.display();
-      display.clearDisplay();
-      display.setCursor(0, 0);
-      display.println(CONTROL_TABLE_DINAMIC[STATUS_ERROR]);
-      CONTROL_TABLE_MPU[ACC_BIAS_X] = mpu.getAccBiasX() * 1000.f / (float)MPU9250::CALIB_ACCEL_SENSITIVITY;
-      CONTROL_TABLE_MPU[ACC_BIAS_Y] = mpu.getAccBiasY() * 1000.f / (float)MPU9250::CALIB_ACCEL_SENSITIVITY;
-      CONTROL_TABLE_MPU[ACC_BIAS_Z] = mpu.getAccBiasZ() * 1000.f / (float)MPU9250::CALIB_ACCEL_SENSITIVITY;
-      CONTROL_TABLE_MPU[GYRO_BIAS_X] = mpu.getGyroBiasX() / (float)MPU9250::CALIB_GYRO_SENSITIVITY;
-      CONTROL_TABLE_MPU[GYRO_BIAS_Y] = mpu.getGyroBiasY() / (float)MPU9250::CALIB_GYRO_SENSITIVITY;
-      CONTROL_TABLE_MPU[GYRO_BIAS_Z] = mpu.getGyroBiasZ() / (float)MPU9250::CALIB_GYRO_SENSITIVITY;
-      CONTROL_TABLE_MPU[MAG_BIAS_X] = mpu.getMagBiasX();
-      CONTROL_TABLE_MPU[MAG_BIAS_Y] = mpu.getMagBiasY();
-      CONTROL_TABLE_MPU[MAG_BIAS_Z] = mpu.getMagBiasZ();
-      CONTROL_TABLE_MPU[MAG_SCALE_X] = mpu.getMagScaleX();
-      CONTROL_TABLE_MPU[MAG_SCALE_Y] = mpu.getMagScaleY();
-      CONTROL_TABLE_MPU[MAG_SCALE_Z] = mpu.getMagScaleZ();
-      //*/
+    bool calib = EEPROM.read(0);
+    if (!calib) {
+      CALIBRATE_MPU();
+    } else {
+      if (mpu.update()) {
+      static uint32_t prev_ms = millis();
+      if (millis() > prev_ms + 25) {
+        CONTROL_TABLE_MPU[ACC_X] = mpu.getAccX();
+        CONTROL_TABLE_MPU[ACC_Y] = mpu.getAccY();
+        CONTROL_TABLE_MPU[ACC_Z] = mpu.getAccZ();
+        CONTROL_TABLE_MPU[GYRO_X] = mpu.getGyroX();
+        CONTROL_TABLE_MPU[GYRO_Y] = mpu.getGyroY();
+        CONTROL_TABLE_MPU[GYRO_Z] = mpu.getGyroZ();
+        CONTROL_TABLE_MPU[MAG_X] = mpu.getMagX();
+        CONTROL_TABLE_MPU[MAG_Y] = mpu.getMagY();
+        CONTROL_TABLE_MPU[MAG_Z] = mpu.getMagZ();
+        CONTROL_TABLE_MPU[QUAN_X] = mpu.getQuaternionX();
+        CONTROL_TABLE_MPU[QUAN_Y] = mpu.getQuaternionY();
+        CONTROL_TABLE_MPU[QUAN_Z] = mpu.getQuaternionZ();
+        CONTROL_TABLE_MPU[QUAN_W] = mpu.getQuaternionW();
+        CONTROL_TABLE_MPU[ROLL] = mpu.getRoll();
+        CONTROL_TABLE_MPU[PITCH] = mpu.getPitch();
+        CONTROL_TABLE_MPU[YAW] = mpu.getYaw();
+        CONTROL_TABLE_MPU[EULER_X] = mpu.getEulerX();
+        CONTROL_TABLE_MPU[EULER_Y] = mpu.getEulerY();
+        CONTROL_TABLE_MPU[EULER_Z] = mpu.getEulerZ();
+        CONTROL_TABLE_MPU[LIN_ACC_X] = mpu.getLinearAccX();
+        CONTROL_TABLE_MPU[LIN_ACC_Y] = mpu.getLinearAccY();
+        CONTROL_TABLE_MPU[LIN_ACC_Z] = mpu.getLinearAccZ();
+        CONTROL_TABLE_MPU[TEMPERATURE] = mpu.getTemperature();
+        Serial.print("[");
+        Serial.print(mpu.getYaw(), 2);
+        Serial.print("/");
+        Serial.print(mpu.getPitch(), 2);
+        Serial.print("/");
+        Serial.println(mpu.getRoll(), 2);
+      }
+    }
     }
   }
 }
@@ -133,17 +57,24 @@ void SetCalibrateMPUCode(void* pvParameters) {
   Run On Core 1
 */
 void SetVIBCode(void* pvParameters) {
-  /*Run On Core 0*/
+  /*Run On Core 1*/
   Serial.print("SetVIBCode running on core ");
   Serial.println(xPortGetCoreID());
   for (;;) {
-    delay(10);
+    delay(100);
     static uint32_t ms = millis();
     if ((millis() - ms > CONTROL_TABLE_TIME[SET_VIB_SENSOR]) && (CONTROL_TABLE_STATE[RUNMODE])) {
-      Serial.print("SetVIBCode running on core ");
-      Serial.println(xPortGetCoreID());
-      
-      //*/
+      int a, b, c, d;
+      a = analogRead(PIN_SW420);
+      b = analogRead(PIN_VIB_ANALOG);
+      c = digitalRead(PIN_VIB_DIGITAL);
+      d = analogRead(PIN_PIEZO);
+      Serial.printf("DIGITAL_SW420 : %d\t ANALOG_VIB : %d\t DIGITAL_VIB : %d\t ANALOG_PIEZO : %d\t\n", a, b, c, d);
+      CONTROL_TABLE_VIBRATION[DIGITAL_SW420] = a;
+      CONTROL_TABLE_VIBRATION[ANALOG_VIB] = b;
+      CONTROL_TABLE_VIBRATION[DIGITAL_VIB] = c;
+      CONTROL_TABLE_VIBRATION[ANALOG_PIEZO] = d;
+
       ms = millis();
     }
   }
@@ -163,8 +94,6 @@ void SetGPSCode(void* pvParameters) {
     delay(10);
     static uint32_t ms = millis();
     if ((millis() - ms > CONTROL_TABLE_TIME[SET_GPS_SENSOR]) && (CONTROL_TABLE_STATE[RUNMODE])) {
-      Serial.print("SetGPSCode running on core ");
-      Serial.println(xPortGetCoreID());
       //*
       while (SERIALGPS.available() > 0) {
         bool enc = gps.encode(SERIALGPS.read());
@@ -221,6 +150,19 @@ void SetNTPCode(void* pvParameters) {
       // Serial.print("Timestamp : ");
       // Serial.println(String(timestamp));
       CONTROL_TABLE_DINAMIC[TIMESTAMP] = String(timestamp);
+    }
+  }
+}
+
+void RestartESPCode(void* pvParameters) {
+  Serial.print("SetNTPCode running on core : ");
+  Serial.println(xPortGetCoreID());
+  for (;;) {
+    delay(10);
+    if (CONTROL_TABLE_STATE[RESTART]) {
+      Serial.print("\n\n Restart WIFI \n\n");
+      delay(100);
+      ESP.restart();
     }
   }
 }

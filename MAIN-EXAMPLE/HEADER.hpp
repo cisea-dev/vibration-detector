@@ -27,9 +27,9 @@
 
 /*PIN VIBRATION*/
 #define PIN_VIB_ANALOG 33
-#define PIN_VIB_DIGITAL 32
-#define PIN_SW420 13
-#define PIN_PIEZO 23
+#define PIN_VIB_DIGITAL 34
+#define PIN_SW420 35
+#define PIN_PIEZO 36
 
 /*HTTP RESPONSE CODE*/
 #define HTTP_SUCCESS 200
@@ -38,6 +38,10 @@
 /*GPS*/
 #define SERIALGPS Serial2
 #define DECLIATION 0.23835
+
+/*EEPROM*/
+#include <EEPROM.h>
+#define EEPROM_SIZE 1
 
 const char* CONTROL_TABLE_STATIC[10];
 String CONTROL_TABLE_DINAMIC[10];
